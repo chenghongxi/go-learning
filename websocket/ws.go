@@ -31,7 +31,7 @@ const (
 
 var (
 	homeTempl = template.Must(template.New("").Parse(homeHTML))
-	filename  = "/Users/caoyuan/test.log"
+	filename  = "D:\\test.log"
 	addr      = ":8090"
 	start     bool
 	upgrader  = websocket.Upgrader{
