@@ -1,0 +1,16 @@
+// 指定proto指定版本
+syntax = "proto3";
+
+option go_package = "../service";
+// 指定文件生出出来的package
+package service;
+
+// 消息 传输的对象
+message User {
+  // 1,2,3,4 是标识号，不是值
+  string username = 1;
+  int32 age = 2 ;
+    string sex = 5;
+  optional string password = 3; // 消息体中可选字段
+  repeated string address = 4 ; // 消息体中可重复字段，重复的值会被保留，在go中重复的会被定义为切片
+}
