@@ -3,15 +3,30 @@ package main
 import (
 	"context"
 	"fmt"
-	"go-learning/grpc/service"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
 	"log"
+
+	"go-learning/grpc/client/auth"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
+
+	"go-learning/grpc/service"
 )
 
 func main() {
-	//创建连接服务端
-	conn, err := grpc.Dial(":8002", grpc.WithTransportCredentials(insecure.NewCredentials()))
+
+	// 加载服务端证书
+	creds, err := credentials.NewClientTLSFromFile("D:\\go-work1\\go-learning\\grpc\\cert\\server.pem", "*.xiaobai.com")
+	if err != nil {
+		log.Fatal("证书错误", err)
+	}
+
+	//可以实现jmt，auth等
+	token := &auth.Authentication{
+		User:     "admin",
+		Password: "admin",
+	}
+	// 创建连接服务端,并读取creds证书和用户名，密码
+	conn, err := grpc.Dial(":8002", grpc.WithTransportCredentials(creds), grpc.WithPerRPCCredentials(token))
 	if err != nil {
 		log.Fatal("fail connect server ", err)
 	}
