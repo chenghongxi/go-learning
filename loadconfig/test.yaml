@@ -1,12 +1,12 @@
-cache:
-  enable : false
-  list : [redis,mongoDB]
 mysql:
-  user : root
-  password : Tech2501
-  host : 8.8.8.8
-  port : 3306
-  name : cwi
+  user: root
+  host: 9.9.9.9
+  password: Tech2501
+  port: "3306"
+  name: cwi
+cache:
+  enable: false
+  list: [redis, mongoDB]
 student:
   caoyingjun1:
     school: zhiyuan
@@ -16,4 +16,5 @@ student:
     age: 19
   caoyingjun3:
     school: sizhong
+    age: 0
 name: yamltest
