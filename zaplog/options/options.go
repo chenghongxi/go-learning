@@ -16,13 +16,11 @@ limitations under the License.
 package options
 
 import (
-	"go-learning/zaplog/log"
-	"go-learning/zaplog/util"
 	"strings"
 
-	//pixiuConfig "github.com/caoyingjunz/pixiulib/config"
-
 	"go-learning/zaplog/config"
+	"go-learning/zaplog/log"
+	"go-learning/zaplog/util"
 )
 
 type Options struct {
