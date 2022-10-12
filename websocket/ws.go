@@ -31,7 +31,7 @@ const (
 
 var (
 	homeTempl = template.Must(template.New("").Parse(homeHTML))
-	filename  = "D:\\test.log"
+	filename  = "D:\\test.zaplog"
 	addr      = ":8090"
 	start     bool
 	upgrader  = websocket.Upgrader{
@@ -181,10 +181,10 @@ const homeHTML = `<!DOCTYPE html>
 					overflow:auto; border:10px solid #303030; color:#ffffff; background-color: #2b2b2b; font-size: 13px; position: absolute; left: 8px; right: 8px; bottom: 8px; top: 40px; word-break:
 		break-all;
 				}
-				#log{
+				#zaplog{
 					position: fixed; top: 0; left: 0; width: 100%; height: 40px; text-align: left; margin: 4px 0 0 8px;
 				}
-				#log b{
+				#zaplog b{
 					font-size: 26px;
 				}
 				#msgBtn{
@@ -193,7 +193,7 @@ const homeHTML = `<!DOCTYPE html>
 			</style>
     </head>
     <body>
-	<div id="log">
+	<div id="zaplog">
 		<span>
 			<b>实时日志</b>
 		</span>
@@ -214,7 +214,7 @@ const homeHTML = `<!DOCTYPE html>
                     dataElement.textContent = 'Connection closed';
                 }
                 conn.onmessage = function(evt) {
-                    console.log('file updated ---> ' + evt.data );
+                    console.zaplog('file updated ---> ' + evt.data );
                     dataElement.textContent = dataElement.textContent + "\n" + evt.data ;
 					consoleDiv.scrollTop = consoleDiv.scrollHeight;
                 }

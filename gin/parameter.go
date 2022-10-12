@@ -28,7 +28,7 @@ func Limiter(c *gin.Context) {
 // LoggerToFile 日志
 func LoggerToFile() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		fmt.Println("log")
+		fmt.Println("zaplog")
 	}
 }
 
