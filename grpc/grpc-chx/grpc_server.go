@@ -3,7 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
-	"go-learning/grpc/service"
+	service2 "go-learning/grpc/grpc-chx/service"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/credentials"
@@ -38,7 +38,7 @@ func main() {
 
 	rpcServer := grpc.NewServer(grpc.Creds(creds), grpc.UnaryInterceptor(authInterceptor))
 
-	service.RegisterProdServiceServer(rpcServer, service.ProductService)
+	service2.RegisterProdServiceServer(rpcServer, service2.ProductService)
 
 	listener, err := net.Listen("tcp", ":8002")
 	if err != nil {

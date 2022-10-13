@@ -3,13 +3,12 @@ package main
 import (
 	"context"
 	"fmt"
+	"go-learning/grpc/grpc-chx/client/auth"
+	"go-learning/grpc/grpc-chx/service"
 	"log"
 
-	"go-learning/grpc/client/auth"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
-
-	"go-learning/grpc/service"
 )
 
 func main() {

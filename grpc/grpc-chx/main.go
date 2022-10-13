@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/golang/protobuf/proto"
-	"go-learning/grpc/service"
+	"go-learning/grpc/grpc-chx/service"
 )
 
 func main() {
