@@ -32,4 +32,10 @@ func main() {
 		log.Fatalf("failed to sayhello %v", err)
 	}
 	log.Printf("say hello %v", r.Message)
+
+	p, err := c.DeletePixiu(ctx, &pd.PixiuRequest{Id: 12345, Name: "caoyingjun"})
+	if err != nil {
+		log.Fatalf("failed to sayhello %v", err)
+	}
+	log.Printf("say hello %v", p.Message)
 }

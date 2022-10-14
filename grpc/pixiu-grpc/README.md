@@ -25,7 +25,7 @@ export PATH="$PATH:$(go env GOPATH)/bin"
 ```protobuf
 syntax="proto3";
 
-option go_package = "go-learning/practise/grpc-practise/pixiu/pixiu";
+option go_package = "go-learning/grpc/grpc-pixiu/pixiu";
 
 package pixiu;
 
@@ -70,6 +70,11 @@ func (s *server) GetPixiu(ctx context.Context, in *pd.PixiuRequest) (*pd.PixiuRe
 	return &pd.PixiuReply{Message: fmt.Sprintf("%s %d", in.GetName(), in.GetId())}, nil
 }
 
+func (s *server) DeletePixiu(ctx context.Context, in *pd.PixiuRequest) (*pd.PixiuReply, error) {
+	log.Printf("Received %s %d", in.Name, in.Id)
+	return &pd.PixiuReply{Message: fmt.Sprintf("%s %d", in.GetName(), in.GetId())}, nil
+}
+
 func main() {
 	l, _ := net.Listen("tcp", ":30000")
 
@@ -84,6 +89,10 @@ func main() {
 
 ### 实现 gRPC 客户端
 ``` go
+var (
+	addr = "127.0.0.1:30000"
+)
+
 func main() {
 	conn, err := grpc.Dial(addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
@@ -97,7 +106,16 @@ func main() {
 	defer cancel()
 
 	r, err := c.GetPixiu(ctx, &pd.PixiuRequest{Id: 12345, Name: "caoyingjun"})
-	...
+	if err != nil {
+		log.Fatalf("failed to sayhello %v", err)
+	}
+	log.Printf("say hello %v", r.Message)
+
+	p, err := c.DeletePixiu(ctx, &pd.PixiuRequest{Id: 12345, Name: "caoyingjun"})
+	if err != nil {
+		log.Fatalf("failed to sayhello %v", err)
+	}
+	log.Printf("say hello %v", p.Message)
 }
 ```
 
