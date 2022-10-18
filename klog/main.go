@@ -1,20 +1,21 @@
 package main
 
 import (
-	"flag"
-	"k8s.io/klog/v2"
+	"fmt"
+	"go-learning/klog/options"
 )
 
-var LogPath = "klog/myfile.log"
-
 func main() {
+	if err := register(); err != nil {
+		fmt.Println(err)
+	}
 
-	klog.InitFlags(nil)
-	// By default klog writes to stderr. Setting logtostderr to false makes klog
-	// write to a log file.
-	flag.Set("logtostderr", "false")
-	flag.Set("log_file", LogPath)
-	flag.Parse()
-	klog.Info("nice to meet you")
-	klog.Flush()
+}
+
+func register() error {
+	// 注册日志
+	if err := options.RegisterLogger(); err != nil {
+		fmt.Println(err)
+	}
+	return nil
 }
