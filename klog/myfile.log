@@ -1,0 +1,5 @@
+Log file created at: 2022/10/18 10:09:50
+Running on machine: LAPTOP-M15D85EM
+Binary: Built with gc go1.19 for windows/amd64
+Log line format: [IWEF]mmdd hh:mm:ss.uuuuuu threadid file:line] msg
+I1018 10:09:50.223374    5640 main.go:16] nice to meet you
