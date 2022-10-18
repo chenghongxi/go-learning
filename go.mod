@@ -13,6 +13,7 @@ require (
 
 require (
 	cloud.google.com/go/functions v1.7.0 // indirect
+	github.com/cloudwego/kitex v0.4.2 // indirect
 	github.com/fsnotify/fsnotify v1.5.4 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
 	github.com/go-logr/logr v1.2.3 // indirect

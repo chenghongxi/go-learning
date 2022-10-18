@@ -2,12 +2,14 @@ package main
 
 import (
 	"fmt"
-	"go-learning/klog/options"
+
+	"go-learning/klog/klog-chx/options"
 )
 
 func main() {
+
 	if err := register(); err != nil {
-		fmt.Println(err)
+		return
 	}
 
 }
