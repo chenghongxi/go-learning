@@ -1,0 +1,26 @@
+Log file created at: 2022/10/18 13:49:18
+Running on machine: LAPTOP-M15D85EM
+Binary: Built with gc go1.19 for windows/amd64
+Log line format: [IWEF]mmdd hh:mm:ss.uuuuuu threadid file:line] msg
+I1018 13:49:18.668269     928 log.go:15] nice to meet you
+Log file created at: 2022/10/18 13:50:29
+Running on machine: LAPTOP-M15D85EM
+Binary: Built with gc go1.19 for windows/amd64
+Log line format: [IWEF]mmdd hh:mm:ss.uuuuuu threadid file:line] msg
+I1018 13:50:29.401762    1060 log.go:15] nice to meet you
+Log file created at: 2022/10/18 14:06:20
+Running on machine: LAPTOP-M15D85EM
+Binary: Built with gc go1.19 for windows/amd64
+Log line format: [IWEF]mmdd hh:mm:ss.uuuuuu threadid file:line] msg
+I1018 14:06:20.883838   18440 log.go:16] nice to meet you
+Log file created at: 2022/10/18 14:06:41
+Running on machine: LAPTOP-M15D85EM
+Binary: Built with gc go1.19 for windows/amd64
+Log line format: [IWEF]mmdd hh:mm:ss.uuuuuu threadid file:line] msg
+I1018 14:06:41.773170    3768 log.go:16] nice to meet you
+Log file created at: 2022/10/18 14:06:58
+Running on machine: LAPTOP-M15D85EM
+Binary: Built with gc go1.19 for windows/amd64
+Log line format: [IWEF]mmdd hh:mm:ss.uuuuuu threadid file:line] msg
+I1018 14:06:58.105123   19504 log.go:15] 123123123
+I1018 14:06:58.122729   19504 log.go:16] nice to meet you

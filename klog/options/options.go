@@ -7,7 +7,8 @@ import (
 )
 
 var (
-	LogPath = "klog/xiaobai"
+	// 输出到文件路径
+	LogPath = "klog/chx/"
 	// true: 标准输出 false: 输出到文件
 	LogOptions = "False"
 	// 日志类型
@@ -31,7 +32,6 @@ func RegisterLogger() error {
 func EnsureDirectoryExists(path string) (err error) {
 	if !IsDirectoryExists(path) {
 		err = os.MkdirAll(path, 0755)
-
 	}
 	return
 }
