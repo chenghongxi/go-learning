@@ -1,11 +1,12 @@
 package main
 
 import (
-	"k8s.io/klog/v2"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
+
+	"k8s.io/klog/v2"
 )
 
 func main() {
