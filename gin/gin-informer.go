@@ -20,10 +20,12 @@ import (
 // 一个 client 负责查资源
 // 一个 client 负责资源的创建，更新，删除
 func main() {
+	// 从家目录读取config
 	config, err := clientcmd.BuildConfigFromFlags("", filepath.Join(homedir.HomeDir(), ".kube", "config"))
 	if err != nil {
 		panic(err)
 	}
+	// 使用config，返回clientset
 	clientset, err := kubernetes.NewForConfig(config)
 	if err != nil {
 		panic(err)
@@ -57,7 +59,7 @@ func main() {
 	podLister := sharedInformers.Core().V1().Pods().Lister()
 	// 启动 gin router
 	// 仅作演示， 无封装， 无异常处理
-	// 启动之后，curl 127.0.0.1：8080/pods
+	// 启动之后，curl 127.0.0.1:8080/pods
 	r := gin.Default()
 	r.GET("/pods", func(c *gin.Context) {
 		pods, err := podLister.List(labels.Everything())
