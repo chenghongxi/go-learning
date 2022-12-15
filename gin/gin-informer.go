@@ -2,6 +2,10 @@ package main
 
 import (
 	"context"
+	"log"
+	"net/http"
+	"path/filepath"
+
 	"github.com/gin-gonic/gin"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/runtime/schema"
@@ -9,11 +13,12 @@ import (
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/client-go/util/homedir"
-	"log"
-	"net/http"
-	"path/filepath"
 )
 
+// 使用 informer 减轻 kubernetes apiserver 并发压力
+// use two clients
+// 一个 client 负责查资源
+// 一个 client 负责资源的创建，更新，删除
 func main() {
 	config, err := clientcmd.BuildConfigFromFlags("", filepath.Join(homedir.HomeDir(), ".kube", "config"))
 	if err != nil {
@@ -25,27 +30,31 @@ func main() {
 	}
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	sharedInformerd := informers.NewSharedInformerFactory(clientset, 0)
 
+	// get all namespace sharedInformers
+	sharedInformers := informers.NewSharedInformerFactory(clientset, 0)
+
+	// get Resource
 	gvrs := []schema.GroupVersionResource{
-		{Group: "app", Version: "v1", Resource: "deployments"},
+		{Group: "apps", Version: "v1", Resource: "deployments"},
 		{Group: "", Version: "v1", Resource: "pods"},
 	}
+
 	for _, gvr := range gvrs {
-		if _, err = sharedInformerd.ForResource(gvr); err != nil {
+		if _, err = sharedInformers.ForResource(gvr); err != nil {
 			panic(err)
 		}
 	}
 
 	// Start all informers
-	sharedInformerd.Start(ctx.Done())
+	sharedInformers.Start(ctx.Done())
 	// Wait for all caches to sync
-	sharedInformerd.WaitForCacheSync(ctx.Done())
+	sharedInformers.WaitForCacheSync(ctx.Done())
 
 	log.Printf("all informers has been started")
 
 	// 构造 pod Lister，用于 gin 的查询
-	podLister := sharedInformerd.Core().V1().Pods().Lister()
+	podLister := sharedInformers.Core().V1().Pods().Lister()
 	// 启动 gin router
 	// 仅作演示， 无封装， 无异常处理
 	// 启动之后，curl 127.0.0.1：8080/pods
