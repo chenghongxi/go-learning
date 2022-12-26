@@ -6,16 +6,31 @@ import (
 	"time"
 )
 
+type Book struct {
+	BookName string
+	L        *sync.Mutex
+}
+
+func (bk *Book) SetName(wg *sync.WaitGroup, name string) {
+	defer func() {
+		fmt.Println("Unlock set name:", name)
+		bk.L.Unlock()
+		wg.Done()
+	}()
+	bk.L.Lock()
+	fmt.Println("Lock set name:", name)
+	time.Sleep(1 * time.Second)
+	bk.BookName = name
+}
+
 func main() {
-	var a = 0
-	var lock sync.Mutex
-	for i := 0; i < 1000; i++ {
-		go func(idx int) {
-			lock.Lock()
-			defer lock.Unlock()
-			a += 1
-			fmt.Printf("goroutine %d, a=%d\n", idx, a)
-		}(i)
+	bk := Book{}
+	bk.L = new(sync.Mutex)
+	wg := &sync.WaitGroup{}
+	books := []string{"<三国演义>", "<道德经>", "<西游记>"}
+	for _, book := range books {
+		wg.Add(1)
+		go bk.SetName(wg, book)
 	}
-	time.Sleep(1e9)
+	wg.Wait()
 }
