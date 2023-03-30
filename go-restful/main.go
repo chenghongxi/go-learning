@@ -1,69 +1,168 @@
 package main
 
 import (
-	"github.com/emicklei/go-restful"
-	v1 "k8s.io/api/core/v1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/client-go/kubernetes"
-	"k8s.io/client-go/rest"
-	"k8s.io/client-go/tools/clientcmd"
+	"log"
 	"net/http"
-	"os"
-	"path/filepath"
+
+	restfulspec "github.com/emicklei/go-restful-openapi/v2"
+	restful "github.com/emicklei/go-restful/v3"
+	"github.com/go-openapi/spec"
 )
 
-type DeploymentResource struct {
-	clientset *kubernetes.Clientset
+// UserResource is the REST layer to the User domain
+type UserResource struct {
+	// normally one would use DAO (data access object)
+	users map[string]User
 }
 
-type StsResource struct {
-	clientset *kubernetes.Clientset
+// WebService creates a new service that can handle REST requests for User resources.
+func (u UserResource) WebService() *restful.WebService {
+	ws := new(restful.WebService)
+	ws.
+		Path("/users").
+		Consumes(restful.MIME_XML, restful.MIME_JSON).
+		Produces(restful.MIME_JSON, restful.MIME_XML) // you can specify this per route as well
+
+	tags := []string{"users"}
+
+	ws.Route(ws.GET("/").To(u.findAllUsers).
+		// docs
+		Doc("get all users").
+		Metadata(restfulspec.KeyOpenAPITags, tags).
+		Writes([]User{}).
+		Returns(200, "OK", []User{}))
+
+	ws.Route(ws.GET("/{user-id}").To(u.findUser).
+		// docs
+		Doc("get a user").
+		Param(ws.PathParameter("user-id", "identifier of the user").DataType("integer").DefaultValue("1")).
+		Metadata(restfulspec.KeyOpenAPITags, tags).
+		Writes(User{}). // on the response
+		Returns(200, "OK", User{}).
+		Returns(404, "Not Found", nil))
+
+	ws.Route(ws.PUT("/{user-id}").To(u.updateUser).
+		// docs
+		Doc("update a user").
+		Param(ws.PathParameter("user-id", "identifier of the user").DataType("string")).
+		Metadata(restfulspec.KeyOpenAPITags, tags).
+		Reads(User{})) // from the request
+
+	ws.Route(ws.PUT("").To(u.createUser).
+		// docs
+		Doc("create a user").
+		Metadata(restfulspec.KeyOpenAPITags, tags).
+		Reads(User{})) // from the request
+
+	ws.Route(ws.DELETE("/{user-id}").To(u.removeUser).
+		// docs
+		Doc("delete a user").
+		Metadata(restfulspec.KeyOpenAPITags, tags).
+		Param(ws.PathParameter("user-id", "identifier of the user").DataType("string")))
+
+	return ws
+}
+
+// GET http://localhost:8080/users
+func (u UserResource) findAllUsers(request *restful.Request, response *restful.Response) {
+	list := []User{}
+	for _, each := range u.users {
+		list = append(list, each)
+	}
+	response.WriteEntity(list)
+}
+
+// GET http://localhost:8080/users/1
+func (u UserResource) findUser(request *restful.Request, response *restful.Response) {
+	id := request.PathParameter("user-id")
+	usr := u.users[id]
+	if len(usr.ID) == 0 {
+		response.WriteErrorString(http.StatusNotFound, "User could not be found.")
+	} else {
+		response.WriteEntity(usr)
+	}
+}
+
+// PUT http://localhost:8080/users/1
+// <User><Id>1</Id><Name>Melissa Raspberry</Name></User>
+func (u *UserResource) updateUser(request *restful.Request, response *restful.Response) {
+	usr := new(User)
+	err := request.ReadEntity(&usr)
+	if err == nil {
+		u.users[usr.ID] = *usr
+		response.WriteEntity(usr)
+	} else {
+		response.WriteError(http.StatusInternalServerError, err)
+	}
+}
+
+// PUT http://localhost:8080/users/1
+// <User><Id>1</Id><Name>Melissa</Name></User>
+func (u *UserResource) createUser(request *restful.Request, response *restful.Response) {
+	usr := User{ID: request.PathParameter("user-id")}
+	err := request.ReadEntity(&usr)
+	if err == nil {
+		u.users[usr.ID] = usr
+		response.WriteHeaderAndEntity(http.StatusCreated, usr)
+	} else {
+		response.WriteError(http.StatusInternalServerError, err)
+	}
+}
+
+// DELETE http://localhost:8080/users/1
+func (u *UserResource) removeUser(request *restful.Request, response *restful.Response) {
+	id := request.PathParameter("user-id")
+	delete(u.users, id)
 }
 
 func main() {
-	config, err := rest.InClusterConfig()
-	if err != nil {
-		kubeconfig := filepath.Join(os.Getenv("HOME"), ".kube", "config")
-		config, err = clientcmd.BuildConfigFromFlags("", kubeconfig)
-		if err != nil {
-			panic(err.Error())
-		}
-	}
-	clientset, err := kubernetes.NewForConfig(config)
-	if err != nil {
-		panic(err.Error())
-	}
-	deploymentService := new(DeploymentResource)
-	deploymentService.clientset = clientset
+	u := UserResource{map[string]User{}}
+	restful.DefaultContainer.Add(u.WebService())
 
-	stsService := new(StsResource)
-	stsService.clientset = clientset
+	config := restfulspec.Config{
+		WebServices:                   restful.RegisteredWebServices(), // you control what services are visible
+		APIPath:                       "/apidocs.json",
+		PostBuildSwaggerObjectHandler: enrichSwaggerObject}
+	restful.DefaultContainer.Add(restfulspec.NewOpenAPIService(config))
 
-	deploymentWS := new(restful.WebService)
-	deploymentWS.Path("/deployment").Consumes(restful.MIME_JSON).Produces(restful.MIME_JSON)
+	// Optionally, you can install the Swagger Service which provides a nice Web UI on your REST API
+	// You need to download the Swagger HTML5 assets and change the FilePath location in the config below.
+	// Open http://localhost:8080/apidocs/?url=http://localhost:8080/apidocs.json
+	http.Handle("/apidocs/", http.StripPrefix("/apidocs/", http.FileServer(http.Dir("/Users/emicklei/Projects/swagger-ui/dist"))))
 
-	deploymentWS.Route(deploymentWS.GET("/{name}").To(deploymentService.getDeployment))
-	deploymentWS.Route(deploymentWS.DELETE("/{name}").To(deploymentService.deleteDeployment))
+	log.Printf("start listening on localhost:8080")
+	log.Fatal(http.ListenAndServe(":8080", nil))
 }
 
-func (r DeploymentResource) getDeployment(request *restful.Request, response *restful.Response) {
-	deploymentName := request.PathParameter("name")
-	deployment, err := r.clientset.AppsV1().Deployments(v1.NamespaceDefault).Get(deploymentName, metav1.)
-
-	if err != nil {
-		response.WriteHeaderAndEntity(http.StatusInternalServerError, err)
-	} else {
-		response.WriteEntity(deployment)
+func enrichSwaggerObject(swo *spec.Swagger) {
+	swo.Info = &spec.Info{
+		InfoProps: spec.InfoProps{
+			Title:       "UserService",
+			Description: "Resource for managing Users",
+			Contact: &spec.ContactInfo{
+				ContactInfoProps: spec.ContactInfoProps{
+					Name:  "john",
+					Email: "john@doe.rp",
+					URL:   "http://johndoe.org",
+				},
+			},
+			License: &spec.License{
+				LicenseProps: spec.LicenseProps{
+					Name: "MIT",
+					URL:  "http://mit.org",
+				},
+			},
+			Version: "1.0.0",
+		},
 	}
+	swo.Tags = []spec.Tag{spec.Tag{TagProps: spec.TagProps{
+		Name:        "users",
+		Description: "Managing users"}}}
 }
 
-func (r DeploymentResource) deleteDeployment(request *restful.Request, response *restful.Response) {
-	deploymentName := request.PathParameter("name")
-	err := r.clientset.AppsV1().Deployments(v1.NamespaceDefault).Delete(deploymentName, &metav1.DeleteOptions{})
-
-	if err != nil {
-		response.WriteHeaderAndEntity(http.StatusInternalServerError, err)
-	} else {
-		response.WriteHeader(http.StatusNoContent)
-	}
+// User is just a sample type
+type User struct {
+	ID   string `json:"id" description:"identifier of the user"`
+	Name string `json:"name" description:"name of the user" default:"john"`
+	Age  int    `json:"age" description:"age of the user" default:"21"`
 }
