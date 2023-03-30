@@ -13,25 +13,25 @@ func (s *cloudRouter) createDeployment(request *restful.Request, response *restf
 
 }
 
-func (s *cloudRouter) getDeployment(request *restful.Request, response *restful.Response) {
-	deploymentname := request.PathParameter("name")
+func (s *cloudRouter) getDeployment(req *restful.Request, res *restful.Response) {
+	deploymentname := req.PathParameter("name")
 	deployment, err := s.clientset.AppsV1().Deployments("default").Get(context.TODO(), deploymentname, metav1.GetOptions{})
 	if err != nil {
-		response.WriteHeaderAndEntity(http.StatusInternalServerError, err)
+		res.WriteHeaderAndEntity(http.StatusInternalServerError, err)
 		return
 	}
 
-	response.WriteEntity(deployment)
+	res.WriteEntity(deployment)
 }
 
-func (r *cloudRouter) DeleteDeployment(request *restful.Request, response *restful.Response) {
-	deploymentName := request.PathParameter("name")
+func (r *cloudRouter) DeleteDeployment(req *restful.Request, res *restful.Response) {
+	deploymentName := req.PathParameter("name")
 	err := r.clientset.AppsV1().Deployments(v1.NamespaceDefault).Delete(context.TODO(), deploymentName, metav1.DeleteOptions{})
 
 	if err != nil {
-		response.WriteHeaderAndEntity(http.StatusInternalServerError, err)
+		res.WriteHeaderAndEntity(http.StatusInternalServerError, err)
 		return
 	}
 
-	response.WriteHeader(http.StatusNoContent)
+	res.WriteHeader(http.StatusNoContent)
 }

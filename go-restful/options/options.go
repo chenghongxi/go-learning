@@ -11,6 +11,6 @@ type Options struct {
 	ConfigFile string
 }
 
-func NewOptions() (*Options, error) {
-	return &Options{}, nil
-}
+//func NewOptions() (*Options, error) {
+//	return &Options{}, nil
+//}

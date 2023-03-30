@@ -20,10 +20,7 @@ func main() {
 	//if err != nil {
 	//	panic(err.Error())
 	//}
-	opts, err := options.NewOptions()
-	if err != nil {
-		panic(err.Error())
-	}
+	opts := &options.Options{}
 
 	router.InstallRoutes(opts)
 
