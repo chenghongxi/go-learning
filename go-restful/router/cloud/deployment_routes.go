@@ -22,7 +22,7 @@ func (s *cloudRouter) getDeployment(req *restful.Request, res *restful.Response)
 	config, err := rest.InClusterConfig()
 	if err != nil {
 		// if running outside cluster
-		kubeconfig := filepath.Join(os.Getenv("HOME"), ".kube", "config")
+		kubeconfig := filepath.Join(os.Getenv("HOME"), "C:\\Users\\42245\\.kube", "config")
 		config, err = clientcmd.BuildConfigFromFlags("", kubeconfig)
 		if err != nil {
 			panic(err.Error())
@@ -34,7 +34,7 @@ func (s *cloudRouter) getDeployment(req *restful.Request, res *restful.Response)
 		panic(err.Error())
 	}
 	deploymentname := req.PathParameter("name")
-	deployment, err := clientset.AppsV1().Deployments("default").Get(context.TODO(), deploymentname, metav1.GetOptions{})
+	deployment, err := clientset.AppsV1().Deployments(deploymentname).List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
 		res.WriteHeaderAndEntity(http.StatusInternalServerError, err)
 		return

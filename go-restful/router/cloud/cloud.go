@@ -27,7 +27,7 @@ func (s *cloudRouter) initRoutes(restfulEngine *restful.Container) {
 
 	//  Deployments API
 	cloudRoute.Route(cloudRoute.GET("/apps/v1/namespaces/:namespace/deployments").To(s.createDeployment))
-	cloudRoute.Route(cloudRoute.GET("/apps/v1/:cloud_name/namespaces/:namespace/deployments").To(s.getDeployment))
+	cloudRoute.Route(cloudRoute.GET("/apps/v1/namespaces/{name}/deployments").To(s.getDeployment))
 
 	restful.Add(cloudRoute)
 }
