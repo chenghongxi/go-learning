@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: test
+  namespace: test
+data:
+  micro.config.prod.yaml: |-
+    service:
+      message_microservice:
+        name: MESSAGE_MICROSERVICE
+        package: message
+        version: 1
+        ip: js-design-staging-hedwig
+        port: 50002
