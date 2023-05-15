@@ -34,14 +34,10 @@ func Run(opt *types.Options) error {
 }
 
 func runServer(opt *types.Options) {
-	srv := &http.Server{
-		Addr:    types.Port,
-		Handler: opt.GinEngine,
-	}
-
+	r := opt.GinEngine
 	go func() {
 		klog.Infof("starting OBS server")
-		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+		if err := http.ListenAndServeTLS(":443", "cert.pem", "key.pem", r); err != nil && err != http.ErrServerClosed {
 			klog.Fatal("failed to listen OBS server: ", err)
 		}
 	}()
