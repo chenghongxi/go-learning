@@ -1,6 +1,7 @@
 package app
 
 import (
+	"crypto/tls"
 	"fmt"
 	"net/http"
 
@@ -34,10 +35,17 @@ func Run(opt *types.Options) error {
 }
 
 func runServer(opt *types.Options) {
-	r := opt.GinEngine
+	srv := &http.Server{
+		Addr:    types.Port,
+		Handler: opt.GinEngine,
+		TLSConfig: &tls.Config{
+			MinVersion: tls.VersionTLS12,
+		},
+	}
+
 	go func() {
 		klog.Infof("starting OBS server")
-		if err := http.ListenAndServeTLS(":443", "cert.pem", "key.pem", r); err != nil && err != http.ErrServerClosed {
+		if err := srv.ListenAndServeTLS("cert.pem", "key.pem"); err != nil && err != http.ErrServerClosed {
 			klog.Fatal("failed to listen OBS server: ", err)
 		}
 	}()
